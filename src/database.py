@@ -56,7 +56,10 @@ class TasksManager(DBManager):
     def create_task(self, task_name: str, category_id: int, task_status: int) -> None:
         cm = CategoryManager()
         if cm.find_category(category_id):
-            self.execute_query("INSERT INTO tasks(task_name, category_id, task_status) VALUES (?, ?, ?)", (task_name, category_id, task_status))
+            self.execute_query(
+                "INSERT INTO tasks(task_name, category_id, task_status) VALUES (?, ?, ?)",
+                (task_name, category_id, task_status),
+            )
 
     def delete_task(self, task_id: int) -> None:
         self.execute_query("DELETE FROM tasks WHERE task_id = ?", (task_id,))
@@ -71,4 +74,7 @@ class TasksManager(DBManager):
         return self.fetch_all("SELECT * FROM tasks")
 
     def get_tasks_by_category(self, category_id: int) -> list:
-        return self.fetch_all("SELECT task_id, task_name, task_status FROM tasks WHERE category_id = ?", (category_id,))
+        return self.fetch_all(
+            "SELECT task_id, task_name, task_status FROM tasks WHERE category_id = ?",
+            (category_id,),
+        )
