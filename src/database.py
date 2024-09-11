@@ -26,12 +26,13 @@ class CategoryManager(DBManager):
     def __init__(self) -> None:
         table_schema = """CREATE TABLE IF NOT EXISTS category (
             category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            category_name TEXT
+            category_name TEXT,
+            user_id INTEGER
         )"""
         super().__init__("database/category.db", table_schema)
 
-    def create_category(self, category_name: str) -> None:
-        self.execute_query("INSERT INTO category(category_name) VALUES (?)", (category_name,))
+    def create_category(self, category_name: str, user_id: int) -> None:
+        self.execute_query("INSERT INTO category(category_name, user_id) VALUES (?, ?)", (category_name, user_id))
 
     def delete_category(self, category_id: int) -> None:
         self.execute_query("DELETE FROM category WHERE category_id = ?", (category_id,))
@@ -39,8 +40,8 @@ class CategoryManager(DBManager):
     def find_category(self, category_id: int) -> list:
         return self.fetch_one("SELECT * FROM category WHERE category_id = ?", (category_id,))
 
-    def get_all_categories(self) -> list:
-        return self.fetch_all("SELECT * FROM category")
+    def get_all_user_categories(self, user_id: int) -> list:
+        return self.fetch_all("SELECT * FROM category WHERE user_id = ?", (user_id,))
 
 
 class TasksManager(DBManager):
@@ -49,16 +50,17 @@ class TasksManager(DBManager):
             task_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             task_name TEXT,
             category_id INTEGER,
-            task_status INTEGER
+            task_status INTEGER,
+            user_id INTEGER
         )"""
         super().__init__("database/tasks.db", table_schema)
 
-    def create_task(self, task_name: str, category_id: int, task_status: int) -> None:
+    def create_task(self, task_name: str, category_id: int, task_status: int, user_id: int) -> None:
         cm = CategoryManager()
         if cm.find_category(category_id):
             self.execute_query(
-                "INSERT INTO tasks(task_name, category_id, task_status) VALUES (?, ?, ?)",
-                (task_name, category_id, task_status),
+                "INSERT INTO tasks(task_name, category_id, task_status, user_id) VALUES (?, ?, ?, ?)",
+                (task_name, category_id, task_status, user_id),
             )
 
     def delete_task(self, task_id: int) -> None:
@@ -73,8 +75,8 @@ class TasksManager(DBManager):
     def get_all_tasks(self) -> list:
         return self.fetch_all("SELECT * FROM tasks")
 
-    def get_tasks_by_category(self, category_id: int) -> list:
+    def get_tasks_by_category(self, category_id: int, user_id: int) -> list:
         return self.fetch_all(
-            "SELECT task_id, task_name, task_status FROM tasks WHERE category_id = ?",
-            (category_id,),
+            "SELECT task_id, task_name, task_status, user_id FROM tasks WHERE category_id = ? AND user_id = ?",
+            (category_id, user_id),
         )

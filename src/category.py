@@ -10,7 +10,7 @@ class CategoryCreate(discord.ui.Modal, title="Create"):
     name = discord.ui.TextInput(label="Name", placeholder="category_name", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
-        cm.create_category(category_name=self.name.value)
+        cm.create_category(self.name.value, 121212)
         await interaction.response.send_message(f"Created a category **{self.name.value}**!", ephemeral=True)
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:

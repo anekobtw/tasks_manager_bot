@@ -11,7 +11,7 @@ class TaskCreate(discord.ui.Modal, title="Create"):
     caregory_id = discord.ui.TextInput(label="Category id", placeholder="caregory_id", required=True)
 
     async def on_submit(self, interaction: discord.Interaction):
-        tm.create_task(self.task_name.value, self.caregory_id.value, 0)
+        tm.create_task(self.task_name.value, self.caregory_id.value, 0, interaction.user.id)
         await interaction.response.send_message(f"Created a task **{self.task_name.value}**!", ephemeral=True)
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
@@ -70,14 +70,14 @@ async def tasks(ctx):
     category_manager = CategoryManager()
     tasks_manager = TasksManager()
 
-    categories = category_manager.get_all_categories()
+    categories = category_manager.get_all_user_categories(ctx.message.author.id)
 
     embed = discord.Embed(title="Categories and Tasks", color=discord.Color.blue())
 
     for category in categories:
         category_id = category[0]
         category_name = category[1]
-        tasks = tasks_manager.get_tasks_by_category(category_id)
+        tasks = tasks_manager.get_tasks_by_category(category_id, ctx.message.author.id)
 
         task_list = "\n".join([f"{task[1]} - {'✅' if task[2] == 1 else '❌'} (id: {task[0]})" for task in tasks])
 
